@@ -20,5 +20,5 @@ Storefront is a Django-based web application for managing an online store.
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/your-username/storefront.git
+   git clone https://github.com/aditya26189/django.git
    cd storefront
