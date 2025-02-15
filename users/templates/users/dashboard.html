@@ -31,9 +31,29 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'home' %}">Home</a>
             </li>
-            {% if user.is_authenticated %}
+            {% if user.is_staff %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              <a class="nav-link" href="{% url 'users:admin_dashboard' %}"
+                >Admin Dashboard</a
+              >
+            </li>
+            {% endif %} {% if user.is_authenticated %}
+            <li class="nav-item">
+              <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="nav-link btn btn-link"
+                  style="
+                    display: inline;
+                    padding: 0;
+                    border: none;
+                    background: none;
+                  "
+                >
+                  Logout
+                </button>
+              </form>
             </li>
             {% endif %}
           </ul>

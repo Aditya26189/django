@@ -128,19 +128,30 @@ def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        user = authenticate(request, email=email, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('/')
+        admin_passcode = request.POST.get('admin_passcode')
+        
+        if admin_passcode == '1234':
+            user = authenticate(request, email=email, password=password)
+            if user is not None and user.is_staff:
+                login(request, user)
+                return redirect('admin_dashboard')
+            else:
+                messages.error(request, 'Invalid admin credentials.')
         else:
-            messages.error(request, 'Invalid email or password.')
+            user = authenticate(request, email=email, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('/')
+            else:
+                messages.error(request, 'Invalid email or password.')
     return render(request, 'users/login.html')
+
 
 @require_POST
 def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('users/login.html')
+    return redirect('/')
 
 
 @login_required
@@ -165,4 +176,33 @@ def dashboard(request):
     return render(request, 'users/dashboard.html', {
         'form': form,
         'all_users': all_users
+    })
+
+@login_required
+def admin_dashboard(request):
+    if not request.user.is_staff:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('/')
+
+    selected_user = None
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        if user_id:
+            selected_user = get_object_or_404(CustomUser, pk=user_id)
+            form = UserUpdateForm(request.POST, instance=selected_user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'User profile has been updated successfully!')
+                return redirect('users:admin_dashboard')
+        else:
+            form = UserUpdateForm()
+    else:
+        form = UserUpdateForm()
+
+    all_users = CustomUser.objects.all()
+
+    return render(request, 'users/admin_dashboard.html', {
+        'form': form,
+        'all_users': all_users,
+        'selected_user': selected_user
     })
