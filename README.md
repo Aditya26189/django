@@ -1,7 +1,5 @@
 # Storefront
 
-Storefront is a Django-based web application for managing an online store.
-
 ## Features
 
 - User registration and authentication
